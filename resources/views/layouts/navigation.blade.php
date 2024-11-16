@@ -29,9 +29,9 @@
                     @endhasrole --}}
 
 
-                    {{-- <x-nav-link :href="route('book')" :active="request()->routeIs('book') || request()->routeIs('book.create')">
+                    <x-nav-link :href="route('book')" :active="request()->routeIs('book') || request()->routeIs('book.create')">
                         {{ __('Book') }}
-                    </x-nav-link> --}}
+                    </x-nav-link> 
                 </div>
             </div>
 
