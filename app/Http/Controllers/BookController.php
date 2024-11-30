@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Book;
 use App\Models\Bookshelf;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class BookController extends Controller
 {
@@ -37,6 +38,54 @@ class BookController extends Controller
         Book::create($validated);
         $notification = array(
             'message' => 'Data Buku Berhasil disimpan',
+            'alert-type' => 'success',
+        );
+        return redirect()->route('book')->with($notification);
+    }
+
+    public function edit($id){
+        // dd($id);
+        $data['book'] = Book::findOrFail($id);
+        $data['bookshelves'] = Bookshelf::pluck('name', 'id');
+        return view('books.edit', $data);
+    }
+    
+    public function update(Request $request, $id)
+    {
+        $book = Book::findOrFail($id);
+        $validated = $request->validate([
+            'title' => 'required',
+            'author' => 'required',
+            'year' => 'required',
+            'publisher' => 'required',
+            'city' => 'required',
+            'bookshelf_id' => 'required',
+        ]);
+        if($request->hasFile('cover')){
+            if($book->cover != null){
+                Storage::delete('public/cover_buku/'. $book->cover);
+            }
+            $path = $request->file('cover')->storeAs(
+                'public/cover_buku',
+                'cover_buku_' . time() . '.' . $request->file('cover')->extension()
+            );
+            $validated['cover'] = basename($path);
+        }
+        $book->update($validated);
+
+        $notification = array(
+            'message' => 'Data Buku Berhasil diubah',
+            'alert-type' => 'success',
+        );
+        return redirect()->route('book')->with($notification);
+    }
+
+    public function destroy($id){
+        $book = Book::findOrFail($id);
+        Storage::delete('public/cover_buku/'. $book->cover);
+        $book->delete();
+        $notification = array(
+            'message' => 'Data Buku Berhasil Dihapus',
             'alert-type' => 'success',
         );
         return redirect()->route('book')->with($notification);
